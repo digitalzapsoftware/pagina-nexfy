@@ -1,0 +1,8 @@
+{
+  "name": "NexFy - Plataforma de Vendas White Label",
+  "description": "Uma página de vendas de alta conversão para o software NexFy, focada em persuadir infoprodutores a possuírem seu próprio gateway e plataforma de vendas.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
