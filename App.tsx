@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   CheckCircle2, 
   ChevronRight, 
@@ -19,7 +19,8 @@ import {
   ChevronDown,
   ChevronUp,
   Instagram,
-  Youtube
+  Youtube,
+  ChevronLeft
 } from 'lucide-react';
 
 const FadeIn: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
@@ -33,6 +34,67 @@ const FadeIn: React.FC<{ children: React.ReactNode; delay?: number }> = ({ child
   return (
     <div className={`transition-all duration-1000 transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       {children}
+    </div>
+  );
+};
+
+const ImageSlider = ({ images }: { images: string[] }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+  }, [images.length]);
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, [nextSlide]);
+
+  return (
+    <div className="relative w-full h-full group overflow-hidden rounded-xl">
+      <div 
+        className="flex transition-transform duration-700 ease-in-out h-full" 
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+      >
+        {images.map((img, idx) => (
+          <div key={idx} className="min-w-full h-full">
+            <img 
+              src={img} 
+              alt={`Slide ${idx + 1}`} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))}
+      </div>
+      
+      {/* Navigation Arrows */}
+      <button 
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#ffde59] hover:text-black text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      <button 
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#ffde59] hover:text-black text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
+      >
+        <ChevronRight size={24} />
+      </button>
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+        {images.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrentIndex(idx)}
+            className={`w-1.5 h-1.5 rounded-full transition-all ${currentIndex === idx ? 'bg-[#ffde59] w-4' : 'bg-white/30'}`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -112,6 +174,21 @@ const FAQItem: React.FC<{ question: string; answer: string }> = ({ question, ans
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const scrollTo = useSmoothScroll();
+
+  // Updated list to contain 11 representative system images
+  const systemImages = [
+    "https://images.unsplash.com/photo-1551288049-bbbda536339a?auto=format&fit=crop&q=80&w=1200", // Dash 1
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200", // Dash 2
+    "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200", // Dash 3
+    "https://images.unsplash.com/photo-1504868584819-f8e90526ef49?auto=format&fit=crop&q=80&w=1200", // Dash 4
+    "https://images.unsplash.com/photo-1551288049-bbbda536339a?auto=format&fit=crop&q=80&w=1200", // Dash 5
+    "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200", // Dash 6
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200", // Dash 7
+    "https://images.unsplash.com/photo-1504868584819-f8e90526ef49?auto=format&fit=crop&q=80&w=1200", // Dash 8
+    "https://images.unsplash.com/photo-1551288049-bbbda536339a?auto=format&fit=crop&q=80&w=1200", // Dash 9
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200", // Dash 10
+    "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200"  // Dash 11
+  ];
 
   return (
     <div className="min-h-screen bg-[#030712] overflow-x-hidden">
@@ -208,9 +285,9 @@ export default function App() {
             </div>
 
             <div className="lg:col-span-8 order-1 lg:order-2">
-              <div className="glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-8 border border-white/10 shadow-3xl">
-                <div className="bg-[#0f172a] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                  <div className="flex border-b border-white/5 p-3 items-center gap-3">
+              <div className="glass-card rounded-2xl sm:rounded-3xl p-2 border border-white/10 shadow-3xl">
+                <div className="bg-[#0f172a] rounded-xl overflow-hidden border border-white/10 shadow-2xl h-[400px] sm:h-[500px] flex flex-col">
+                  <div className="flex border-b border-white/5 p-3 items-center gap-3 bg-black/40">
                     <div className="flex gap-1.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
                       <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
@@ -218,34 +295,8 @@ export default function App() {
                     </div>
                     <div className="bg-white/5 px-3 py-1 rounded text-[10px] text-white/40 font-mono overflow-hidden whitespace-nowrap">dashboard.nexfy.com.br</div>
                   </div>
-                  <div className="p-4 sm:p-10">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
-                      <div className="p-3 sm:p-4 bg-white/5 rounded-xl border border-white/5">
-                        <span className="text-[10px] sm:text-xs text-slate-400 uppercase">Vendas Hoje</span>
-                        <div className="text-sm sm:text-xl font-bold text-[#ffde59]">R$ 12.450,00</div>
-                      </div>
-                      <div className="p-3 sm:p-4 bg-white/5 rounded-xl border border-white/5">
-                        <span className="text-[10px] sm:text-xs text-slate-400 uppercase">Checkout Conv.</span>
-                        <div className="text-sm sm:text-xl font-bold text-[#ffde59]">42.5%</div>
-                      </div>
-                      <div className="p-3 sm:p-4 bg-white/5 rounded-xl border border-white/5">
-                        <span className="text-[10px] sm:text-xs text-slate-400 uppercase">SaaS Ativos</span>
-                        <div className="text-sm sm:text-xl font-bold text-[#ffde59]">24</div>
-                      </div>
-                      <div className="p-3 sm:p-4 bg-white/5 rounded-xl border border-white/5">
-                        <span className="text-[10px] sm:text-xs text-slate-400 uppercase">Recuperado</span>
-                        <div className="text-sm sm:text-xl font-bold text-[#ffde59]">R$ 2.340</div>
-                      </div>
-                    </div>
-                    <div className="h-40 sm:h-64 flex items-end gap-1.5 sm:gap-4 overflow-hidden pt-10">
-                      {[30, 45, 25, 60, 40, 75, 50, 90, 65, 80, 55, 100].map((h, i) => (
-                        <div 
-                          key={i} 
-                          className="flex-1 bg-gradient-primary rounded-t-lg transition-all duration-1000" 
-                          style={{ height: `${h}%` }}
-                        />
-                      ))}
-                    </div>
+                  <div className="flex-1 overflow-hidden">
+                    <ImageSlider images={systemImages} />
                   </div>
                 </div>
               </div>
@@ -539,7 +590,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Community Section -> Suporte Individual Section */}
+      {/* Suporte Individual Section */}
       <section className="py-16 sm:py-24 bg-[#ffde59]/5">
         <div className="max-w-7xl mx-auto px-4 text-center">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#ffde59]/20 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-8 border border-[#ffde59]/30">
